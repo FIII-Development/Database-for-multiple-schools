@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIII-DB | Database Tugas Sekolah SD Negeri Klaten 2</title>
+    <style>
+        /* CSS kaku ala website administrasi sekolah */
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f9; margin: 0; padding: 0; }
+        .header { background-color: #1a4a7a; color: white; padding: 20px; text-align: center; border-bottom: 5px solid #d4af37; }
+        .container { max-width: 450px; margin: 50px auto; background: white; padding: 30px; border: 1px solid #ced4da; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        h3 { color: #1a4a7a; text-align: center; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #495057; font-size: 13px; }
+        input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; background-color: #ffffff; }
+        button { width: 100%; background-color: #1a4a7a; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; }
+        button:hover { background-color: #14385c; }
+        .footer { text-align: center; font-size: 10px; color: #adb5bd; margin-top: 35px; line-height: 1.5; }
+        
+        /* Area Konten (Default Sembunyi) */
+        #secret-chat, #public-homework { display: none; }
+        .message-box { height: 250px; border: 1px solid #dee2e6; background: #f8f9fa; padding: 10px; overflow-y: auto; margin-bottom: 15px; border-radius: 4px; }
+        .homework-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+        .homework-table th, .homework-table td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
+        .homework-table th { background-color: #e9ecef; color: #495057; }
+        .status-badge { background: #d4edda; color: #155724; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2 style="margin:0; font-size: 18px; letter-spacing: 2px;">DIVISI FIII - DATABASE PENDIDIKAN</h2>
+</div>
+
+<div class="container" id="login-page">
+    <h3>Login Akses Siswa</h3>
+    <p style="text-align: center; font-size: 12px; color: #6c757d; margin-bottom: 25px;">SD Negeri Klaten 2 - Tahun Ajaran 2025/2026</p>
+    
+    <label>ID Pengguna (Username):</label>
+    <input type="text" id="user-input" placeholder="Masukkan ID Siswa...">
+
+    <label>Classroom Key (Token Keamanan):</label>
+    <input type="password" id="key-input" placeholder="Masukkan Token...">
+
+    <button onclick="handleLogin()">VERIFIKASI DATA</button>
+
+    <div class="footer">
+        Credits from [Namaku, Privasi], thanks for making this site work.<br>
+        Encrypted by PixeltenOS Security Engine
+    </div>
+</div>
+
+<div class="container" id="public-homework">
+    <h3>Log Tugas SDN Klaten 2</h3>
+    <p id="date-info" style="font-size: 11px; color: #1a4a7a; font-weight: bold;"></p>
+    <table class="homework-table">
+        <thead>
+            <tr><th>Mata Pelajaran</th><th>Tugas</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Matematika</td><td>Hal 56 (1-10)</td><td><span class="status-badge">AKTIF</span></td></tr>
+            <tr><td>IPAS</td><td>Bab 4 Magnet</td><td><span class="status-badge">AKTIF</span></td></tr>
+        </tbody>
+    </table>
+    <button onclick="location.reload()" style="margin-top:20px; background-color: #6c757d;">LOGOUT SISTEM</button>
+</div>
+
+<div class="container" id="secret-chat">
+    <h3>FIII | Secure Connection</h3>
+    <div class="message-box" id="chat-content">
+        <p style="color: #adb5bd; font-size: 11px; text-align: center;">-- Sistem Komunikasi Rahasia Aktif --</p>
+    </div>
+    <input type="text" id="msg-input" placeholder="Kirim pesan...">
+    <button onclick="sendMsg()">KIRIM</button>
+    <button onclick="location.reload()" style="margin-top:10px; background-color: #dc3545;">PANIC SHUTDOWN</button>
+</div>
+
+<script>
+    // Set tanggal otomatis
+    document.getElementById('date-info').innerText = "DATA TERKINI: " + new Date().toLocaleDateString('id-ID');
+
+    function handleLogin() {
+        const user = document.getElementById('user-input').value.toLowerCase();
+        const key = document.getElementById('key-input').value;
+
+        // AKSES RAHASIA (Ganti 'fiii' dan '10w' sesukamu)
+        if (user === 'fiii' && key === '10w') {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('secret-chat').style.display = 'block';
+        } 
+        // AKSES UMUM (Galang/Orang Tua/Siswa lain)
+        else if (user !== "" && key !== "") {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('public-homework').style.display = 'block';
+        } 
+        else {
+            alert("Sistem: ID atau Token tidak valid.");
+        }
+    }
+
+    function sendMsg() {
+        const msg = document.getElementById('msg-input').value;
+        const chat = document.getElementById('chat-content');
+        if(msg.trim() !== "") {
+            const p = document.createElement('p');
+            p.innerHTML = "<b style='color:#1a4a7a'>Admin:</b> " + msg;
+            p.style.fontSize = "13px";
+            p.style.margin = "8px 0";
+            p.style.borderBottom = "1px solid #f1f3f5";
+            chat.appendChild(p);
+            document.getElementById('msg-input').value = "";
+            chat.scrollTop = chat.scrollHeight;
+        }
+    }
+</script>
+
+</body>
+</html>
