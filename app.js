@@ -77,7 +77,7 @@ function sendMsg() {
     }
 }
 // Fungsi untuk mengambil data PR berdasarkan sekolah yang dipilih saat login
-function loadHomework(school) {
+function loadHomeworkToTable(school) {
     // 1. Pastikan Path Firebase-nya dinamis mengikuti pilihan sekolah
     const homeworkRef = db.ref(`homework/${school}`); 
     
