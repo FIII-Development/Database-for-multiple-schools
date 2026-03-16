@@ -59,14 +59,17 @@
         // --- Fungsi register ---
         document.getElementById('register-btn').onclick = () => {
             const name = document.getElementById('reg-name').value.trim().toLowerCase();
-            const school = document.getElementById('reg-school').value;
-            const keyInput = document.getElementById('reg-key').value.trim().toUpperCase();
-
-            // Validasi classroom key
             const keyTonggalan = "TGL5-CEO-A3";
             const keyKlaten2 = "KLT2-SAM-AR";
             let validKey = false;
-
+            let school = "";
+            const keyInput = document.getElementById('reg-key').value.trim().toUpperCase();
+            if (keyInput == keyTonggalan) {
+                school = "tonggalan";
+            } else if (keyInput == keyKlaten2) {
+                school = "klaten2";
+            }
+            // Validasi classroom key
             if ((school === "tonggalan" && keyInput === keyTonggalan) ||
                 (school === "klaten2" && keyInput === keyKlaten2)) {
                 validKey = true;
