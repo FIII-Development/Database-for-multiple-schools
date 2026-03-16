@@ -23,7 +23,11 @@
         <label>Classroom Key:</label>
         <input type="text" id="reg-key" placeholder="Masukkan classroom key..." style="text-transform: uppercase;">
 
+        <label style="font-weight:bold;">Verifikasi CAPTCHA:</label>
+        <div class="g-recaptcha" data-sitekey="6LfV4oksAAAAAP9wLUl3U5AEOgLGkpRfBMYmfXm5"></div>
+
         <button id="register-btn">AJUKAN AKSES</button>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         <p><a href="index.html" style="font-size: 12px;">Sudah punya akun? Login di sini</a></p>
     </div>
 
@@ -64,6 +68,18 @@
 
         // --- Fungsi register ---
         document.getElementById('register-btn').onclick = () => {
+            if (typeof grecaptcha === "undefined") {
+               alert("CAPTCHA belum siap, tunggu sebentar!");
+                return;
+            }
+            
+            const captchaResponse = grecaptcha.getResponse();
+            if (captchaResponse.length === 0) {
+                alert("Silakan centang CAPTCHA sebelum login!");
+                location.reload();
+                return; // hentikan login
+            }
+           
             const name = document.getElementById('reg-name').value.trim().toLowerCase();
             const keyTonggalan = "TGL5-CEO-A3";
             const keyKlaten2 = "KLT2-SAM-AR";
