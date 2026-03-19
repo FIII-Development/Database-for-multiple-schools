@@ -1,44 +1,36 @@
 document.getElementById('date-info').innerText = "DATA TERKINI: " + new Date().toLocaleDateString('id-ID');
 window.onload = () => {
     document.getElementById('login-btn').onclick = handleLogin;
-    const input = document.getElementById("user-input");
-    commentsList = document.getElementById("comments-list");
-
-    const tableBody = document.getElementById("homework-list");
-    tableBody.addEventListener("click", function(event) {
-        let tr = event.target.closest("tr");
-        if (!tr) return;
-
-        currentHomeworkKey = tr.dataset.key;
-        document.getElementById("homework-reply").style.display = "block";
-
-        loadComments(currentHomeworkKey);
-    });
-
-    input.addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            const text = input.value.trim();
-            if (!text || !currentHomeworkKey) return;
-
-            const user = firebase.auth().currentUser;
-            if (!user) {
-                alert("Silakan login terlebih dahulu untuk berkomentar.");
-                return;
-            }
-            const username = user.displayName || user.email.split("@")[0];
-
-            addCommentToDOM(username, text, false);
-
-            db.ref(`HomeworkReplies/${currentSchool}/${currentHomeworkKey}/chat/${username}`).set({
-                comment: text,
-                pin: false
-            });
-
-            input.value = "";
-        }
-    });
 };
+const input = document.getElementById("user-input");
+commentsList = document.getElementById("comments-list");
+const tableBody = document.getElementById("homework-list");
+tableBody.addEventListener("click", function(event) {
+    let tr = event.target.closest("tr");
+    if (!tr) return;
+    currentHomeworkKey = tr.dataset.key;
+    document.getElementById("homework-reply").style.display = "block";
+    loadComments(currentHomeworkKey);
+});
+input.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        const text = input.value.trim();
+        if (!text || !currentHomeworkKey) return;
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            alert("Silakan login terlebih dahulu untuk berkomentar.");
+            return;
+        }
+        const username = user.displayName || user.email.split("@")[0];
+        addCommentToDOM(username, text, false);
+        db.ref(`HomeworkReplies/${currentSchool}/${currentHomeworkKey}/chat/${username}`).set({
+            comment: text,
+            pin: false
+        });
+        input.value = "";
+    }
+});
 let currentSchool = null;
 
 function addCommentToDOM(username, commentText, pin = false) {
