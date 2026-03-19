@@ -12,7 +12,7 @@ tableBody.addEventListener("click", function(event) {
     document.getElementById("homework-reply").style.display = "block";
     loadComments(currentHomeworkKey);
 });
-input.addEventListener("keypress", function(event) {
+input.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         event.preventDefault();
         const text = input.value.trim();
