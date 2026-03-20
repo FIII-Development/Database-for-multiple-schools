@@ -13,6 +13,7 @@ tableBody.addEventListener("click", function(event) {
     loadComments(currentHomeworkKey);
 });
 input.addEventListener("keydown", function(event) {
+    console.log("Key pressed:", event.key);
     if (event.key === "Enter") {
         event.preventDefault();
         const text = input.value.trim();
@@ -24,14 +25,13 @@ input.addEventListener("keydown", function(event) {
         }
         const username = user.displayName || user.email.split("@")[0];
         addCommentToDOM(username, text, false);
-        db.ref(`HomeworkReplies/${currentSchool}/${currentHomeworkKey}/chat/${username}`).set({
+        db.ref(`HomeworkReplies/${school}/${currentHomeworkKey}/chat/${username}`).set({
             comment: text,
             pin: false
         });
         input.value = "";
     }
 });
-let currentSchool = null;
 
 function addCommentToDOM(username, commentText, pin = false) {
         const div = document.createElement("div");
@@ -91,7 +91,7 @@ function handleLogin() {
     const keyKlaten2 = "KLT2-SAM-AR";
 
     let keyValid = false;
-    let school = "";
+    school = "";
     if (keyInput === keyTonggalan) {
         keyValid = true;
         school = "tonggalan";
@@ -144,7 +144,6 @@ function handleLogin() {
 
 // Fungsi executeEntry dan lainnya tetap sama seperti milikmu
 function executeEntry(userName, userSchool, userData) {
-    currentSchool = userSchool;
     document.getElementById('login-page').style.display = 'none';
     
     const isVerified = !userData.status;
@@ -193,7 +192,7 @@ function loadComments(homeworkKey) {
     const commentsList = document.getElementById("comments-list");
     commentsList.innerHTML = "";
 
-    db.ref(`HomeworkReplies/${currentSchool}/${homeworkKey}/chat`)
+    db.ref(`HomeworkReplies/${school}/${homeworkKey}/chat`)
     .on("value", snapshot => {
         snapshot.forEach(child => {
             const data = child.val();
