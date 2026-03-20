@@ -2,7 +2,7 @@ document.getElementById('date-info').innerText = "DATA TERKINI: " + new Date().t
 window.onload = () => {
     document.getElementById('login-btn').onclick = handleLogin;
 };
-const input = document.getElementById("user-input");
+const input = document.getElementById("comment-input");
 commentsList = document.getElementById("comments-list");
 const tableBody = document.getElementById("homework-list");
 tableBody.addEventListener("click", function(event) {
@@ -13,7 +13,6 @@ tableBody.addEventListener("click", function(event) {
     loadComments(currentHomeworkKey);
 });
 input.addEventListener("keydown", function(event) {
-    console.log("Key pressed:", event.key);
     if (event.key === "Enter") {
         event.preventDefault();
         const text = input.value.trim();
