@@ -1,0 +1,40 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIII-DB | Database Tugas Sekolah</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://i.imgur.com/P2ySQX2.png" type="image/png">
+    <link rel="manifest" href="manifest.json">
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log("Service Worker Registered"))
+          .catch((err) => console.log("Service Worker Failed", err));
+      }
+    </script>
+</head>
+
+<div class="header">
+    <h2>Database Pendidikan</h2>
+    <div id="header-profile-trigger">
+        <div id="header-avatar">
+        </div>
+    </div>
+</div> 
+
+<body>
+    <div class="container" style="align-items: center;">
+        <h3>Pengaturan Akun</h3>
+        <p style="font-size: 12px; color: #666;">Atur preferensi akun dan avatar kamu di sini</p>
+
+        <label>Avatar:</label>
+        <div id="view-avatar" style="width: 100px; height: 100px; background-color: #eee; border-radius: 50%; margin-bottom: 10px; margin-top: 10px;"></div>
+        <button id="change-avatar-btn">Ganti Avatar</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="setting.js"></script>
+</body>

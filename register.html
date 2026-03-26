@@ -6,6 +6,15 @@
     <title>FIII-DB | Database Tugas Sekolah </title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="https://i.imgur.com/P2ySQX2.png" type="image/png">
+    <link rel="manifest" href="manifest.json">
+    
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log("Service Worker Registered"))
+          .catch((err) => console.log("Service Worker Failed", err));
+      }
+    </script>
 </head>
 <body>
 

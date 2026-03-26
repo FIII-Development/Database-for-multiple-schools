@@ -16,6 +16,7 @@ const profileEditor = document.getElementById("profile-editor");
 const input = document.getElementById("comment-input");
 const commentsList = document.getElementById("comments-list");
 const tableBody = document.getElementById("homework-list");
+const guestIcon = 'guest.png';
 const db = firebase.database();
 const auth = firebase.auth();
 
@@ -27,6 +28,96 @@ let username = "";
 let profileName = document.getElementById("profile-name");
 
 auth.signOut();
+
+async function loadImageToBase64(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+function compressBase64Image(dataUrl, outputType = "image/jpeg", quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      resolve(canvas.toDataURL(outputType, quality));
+    };
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}
+
+async function setDefaultAvatarIfMissing(user, school) {
+  if (!user || !school) {
+    console.log("setDefaultAvatarIfMissing: missing user or school", {user, school});
+    return;
+  }
+
+  const avatarRef = db.ref(`UserAvatar/${school}/${user}`);
+  const snap = await avatarRef.once("value");
+  const value = snap.val();
+
+  console.log("Avatar check - user:", user, "school:", school, "value:", value);
+
+  if (!value || value.trim() === "") {
+    try {
+      console.log("Loading guest.png...");
+      const guestBase = await loadImageToBase64("guest.png");
+      console.log("Loaded guest.png, compressing...");
+      const compressed = await compressBase64Image(guestBase, "image/png", 0.92); 
+      console.log("Compressed, saving to Firebase...");
+      await avatarRef.set(compressed);
+      console.log("✅ Guest-avatar default set for", user);
+    } catch (err) {
+      console.error("❌ Avatar default set failed:", err);
+    }
+  }
+}
+
+async function applyAvatarFromDB(user, school) {
+  if (!headerProfileAvatar) {
+    headerProfileAvatar = document.getElementById("header-avatar");
+  }
+  if (!headerProfileAvatar) {
+    console.warn("header avatar element not found");
+    return;
+  }
+
+  const snap = await db.ref(`UserAvatar/${school}/${user}`).once("value");
+  const value = (snap.val() || "").toString().trim();
+
+  const final = value
+    ? value
+    : (await db.ref(`UserAvatar/${school}/guest`).once("value")).val();
+
+  if (!final) {
+    console.warn("No avatar value from DB for", user, school);
+    return;
+  }
+
+  // Accept both data URL and standard path
+  const src = final.startsWith("data:") ? final : final;
+  
+  headerProfileAvatar.style.backgroundImage = `url("${src}")`;
+  headerProfileAvatar.style.backgroundSize = "cover";
+  headerProfileAvatar.style.backgroundPosition = "center";
+  headerProfileAvatar.style.backgroundRepeat = "no-repeat";
+  headerProfileAvatar.style.backgroundColor = "transparent";
+}
 
 headerProfileAvatar.onclick = () => {
     event.stopPropagation();
@@ -53,12 +144,16 @@ document.getElementById('date-info').innerText = "DATA TERKINI: " + new Date().t
 
 window.onload = () => {
     document.getElementById('login-btn').onclick = handleLogin;
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
+        console.log("Auth state changed, user:", user ? user.email : "null");
         if (user) {
             headerProfileTrigger.style.display = "flex";
             username = user.displayName || user.email.split("@")[0];
             cleanedUsername = username.charAt(0).toUpperCase() + username.slice(1)
             profileName.textContent = cleanedUsername;
+
+            await setDefaultAvatarIfMissing(username, school);
+            await applyAvatarFromDB(username, school);
         } else {
             headerProfileTrigger.style.display = "none";
             username = "";
@@ -89,9 +184,15 @@ input.addEventListener("keydown", function(event) {
             return;
         }
         const username = user.displayName || user.email.split("@")[0];
-        cleanedUsername = username.charAt(0).toUpperCase() + username.slice(1)
-        addCommentToDOM(cleanedUsername, text, false);
-        db.ref(`HomeworkReplies/${school}/${currentHomeworkKey}/chat/${cleanedUsername}`).set({
+        cleanedUsername = username.charAt(0).toUpperCase() + username.slice(1);
+
+        let currentAvatar = "guest.png";
+        if (headerProfileAvatar && headerProfileAvatar.style.backgroundImage) {
+            currentAvatar = headerProfileAvatar.style.backgroundImage.replace(/^url\(["']?(.*?)["']?\)$/, "$1") || "guest.png";
+        }
+
+        addCommentToDOM(cleanedUsername, text, false, currentAvatar);
+        db.ref(`HomeworkReplies/${school}/${currentHomeworkKey}/chat/${username}`).set({
             comment: text,
             pin: false
         });
@@ -99,16 +200,27 @@ input.addEventListener("keydown", function(event) {
     }
 });
 
-function addCommentToDOM(username, commentText, pin = false) {
+function addCommentToDOM(username, commentText, pin = false, avatarUrl = null) {
     const commentsList = document.getElementById("comments-list");
+    if (!commentsList) return;
+
+    // Determine avatar image source (use provided avatar, or guest fallback)
+    let finalAvatar = "guest.png";
+    if (avatarUrl && avatarUrl.toString().trim() !== "") {
+        finalAvatar = avatarUrl;
+    }
 
     const existingComments = commentsList.querySelectorAll(".container.comment");
     existingComments.forEach(commentDiv => {
-        const label = commentDiv.querySelector("label");
+        const label = commentDiv.querySelector(".comment-author");
         if (label && label.innerText.startsWith(username)) {
-            commentDiv.remove(); 
+            commentDiv.remove();
         }
     });
+
+    // avatar size and font size relation
+    const tempAvatarSize = 44; // pixels; defined via CSS
+    const computedFontSize = Math.max(12, Math.round(tempAvatarSize * 0.55));
 
     const div = document.createElement("div");
     div.className = "container comment";
@@ -116,11 +228,15 @@ function addCommentToDOM(username, commentText, pin = false) {
 
     const pinLabel = pin ? '<span class="pin-label">📌 Pinned</span>' : '';
     div.innerHTML = `
-        <label>${username}:</label> ${pinLabel}
-        <p>${commentText.replace(/\n/g, "<br>")}</p>
+      <div class="comment-header">
+        <div class="comment-avatar" style="background-image: url('${finalAvatar}');"></div>
+        <div class="comment-meta">
+          <span class="comment-author" style="font-size:${computedFontSize}px;">${username.charAt(0).toUpperCase() + username.slice(1)}</span>${pinLabel}
+        </div>
+      </div>
+      <p>${commentText.replace(/\n/g, "<br>")}</p>
     `;
 
-    // 3. Add to DOM
     if (pin) {
         commentsList.prepend(div);
     } else {
@@ -189,6 +305,8 @@ function handleLogin() {
         }
 
         console.log("Login & Auth Berhasil!");
+        localStorage.setItem("school", school);
+        localStorage.setItem("user", username);
         executeEntry(user, school, userData);
     })
     .catch((error) => {
@@ -248,18 +366,33 @@ function loadHomeworkToTable(school) {
 
 let currentHomeworkKey = null;
 
-function loadComments(homeworkKey) {
+async function loadComments(homeworkKey) {
     const commentsList = document.getElementById("comments-list");
+    if (!commentsList) return;
     commentsList.innerHTML = "";
 
-    db.ref(`HomeworkReplies/${school}/${homeworkKey}/chat`)
-    .once("value", snapshot => {
-        snapshot.forEach(child => {
-            const data = child.val();
-            const username = child.key;
-            addCommentToDOM(username, data.comment, data.pin);
-        });
+    const snapshot = await db.ref(`HomeworkReplies/${school}/${homeworkKey}/chat`).once("value");
+    const tasks = [];
+    snapshot.forEach(child => {
+        const data = child.val();
+        const username = child.key;
+        tasks.push((async () => {
+            let avatarUrl = "guest.png";
+            try {
+                const avatarSnapshot = await db.ref(`UserAvatar/${school}/${username}`).once("value");
+                const avatarValue = avatarSnapshot.val();
+                if (avatarValue && avatarValue.toString().trim() !== "") {
+                    avatarUrl = avatarValue;
+                }
+                // Fallback to guest.png if no avatar in DB
+            } catch (err) {
+                console.warn("Failed to fetch avatar for", username, err);
+            }
+            addCommentToDOM(username, data.comment, data.pin, avatarUrl);
+        })());
     });
+
+    await Promise.all(tasks);
 }
 
 // Below this is a function to normalize lua syntax usage

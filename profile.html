@@ -1,0 +1,40 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIII-DB | Database Tugas Sekolah</title>
+    <link rel="stylesheet" href="settingstyle.css">
+    <link rel="icon" href="https://i.imgur.com/P2ySQX2.png" type="image/png">
+    <link rel="manifest" href="manifest.json">
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log("Service Worker Registered"))
+          .catch((err) => console.log("Service Worker Failed", err));
+      }
+    </script>
+</head>
+
+<div class="header">
+    <h2>Database Pendidikan</h2>
+</div>
+<body>
+    <div class="container">
+        <label id="profile-name">Azfar</label>
+        <div id="view-avatar">
+        </div>
+        <p>Kamu sudah di pin sebanyak <span id="pin-count">0</span> kali</p>
+        <br>
+        <p style="color: #064a8b; font-size: 16px;">Rank kamu saat ini:</p>
+        <h2 id="rank-info" style="color: #064a8b; font-size: 24px; font-weight: bold;">Loading...</h2>
+        <p style="color: #064a8b; font-size: 16px;">------------------</p>
+        <p style="color: #064a8b; font-size: 16px;">Kamu berada di peringkat <span id="rank-position">0</span> dari <span id="total-users">0</span> pengguna</p>
+        <button id="reset-btn" style="margin-top: 20px; background-color: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Keluar sistem</button>   
+        <button id="setting-btn" style="margin-top: 20px">Pengaturan Avatar</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="profile.js"></script>
+</body>
